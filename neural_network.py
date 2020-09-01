@@ -182,52 +182,6 @@ def backward_propagation(AL, Y, caches, lambd):
     return grads
 
 
-def backward_propagation_with_regularization(X, Y, cache, lambd):
-
-    gradients = {}
-    m = X.shape[1]
-
-    Z = []
-    A = []
-    W = []
-    b = []
-
-    L = len(cache) // 3
-    for i in range(L):
-        Z.append(cache["Z" + str(i + 1)])
-        A.append(cache["A" + str(i + 1)])
-        W.append(cache["W" + str(i + 1)])
-        b.append(cache["b" + str(i + 1)])
-
-    A = A[L - 1]
-    dZ = A - Y
-    dW = 1.0 / m * np.dot(dZ, A[L - 2].T) + (lambd / m) * W[L - 1]
-    db = 1.0 / m * np.sum(dZ, axis=1, keepdims=True)
-    gradients["dZ" + str(L)] = dZ
-    gradients["dW" + str(L)] = dW
-    gradients["db" + str(L)] = db
-
-    for i in reversed(range(1, L - 1)):
-        dA = np.dot(W[i + 1].T, dZ[i + 1])
-        dZ = np.multiply(dA, np.int64(A[i] > 0))
-        dW = 1.0 / m * np.dot(dZ, A[i - 1].T) + (lambd / m) * W[i]
-        db = 1.0 / m * np.sum(dZ, axis=1, keepdims=True)
-        gradients["dA" + str(i + 1)] = dA
-        gradients["dZ" + str(i + 1)] = dZ
-        gradients["dW" + str(i + 1)] = dW
-        gradients["db" + str(i + 1)] = db
-
-    dA = np.dot(W[1].T, dZ[1])
-    dZ = np.multiply(dA, np.int64(A[0] > 0))
-    dW = 1.0 / m * np.dot(dZ, X.T) + (lambd / m) * W[0]
-    db = 1.0 / m * np.sum(dZ, axis=1, keepdims=True)
-    gradients["dA1"] = dA
-    gradients["dZ1"] = dZ
-    gradients["dW1"] = dW
-    gradients["db1"] = db
-    return gradients
-
-
 # create a neural net
 def model(
     X,
